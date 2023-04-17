@@ -13,9 +13,11 @@ function App() {
           setText(e.target.value);
         }}
       />
-      <div className="info-text">{text.length}文字</div>
+      <div className="info-text">{countChars(text)}文字</div>
     </div>
   );
 }
+
+const countChars = (text: string) => text.replace(/\r?\n/g, "").length;
 
 export default App;
