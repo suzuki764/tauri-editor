@@ -57,6 +57,6 @@ function App() {
   );
 }
 
-const countChars = (text: string) => text.replace(/\r?\n/g, "").length;
+const countChars = (text: string) => text.replace(/[\s　]+/g, "").length;
 
 export default App;
