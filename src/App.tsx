@@ -1,53 +1,47 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
+import { writeTextFile, BaseDirectory } from "@tauri-apps/api/fs";
 import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [contents, setContents] = useState("");
+  const [filename, setFilename] = useState("");
+  const [message, setMessage] = useState("");
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const saveHandler = async () => {
+    if (filename === "") {
+      setMessage("ファイル名を入力してください");
+      return;
+    }
+    const saveName = filename.endsWith(".txt") ? filename : `${filename}.txt`;
+    await writeTextFile(saveName, contents, { dir: BaseDirectory.Desktop });
+    setMessage("保存しました");
+  };
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="main">
+      <textarea
+        value={contents}
+        onChange={(e) => {
+          setContents(e.target.value);
+        }}
+      />
+      <div className="footer">
+        <div>{countChars(contents)}文字</div>
+        <input
+          value={filename}
+          placeholder="ファイル名"
+          onChange={(e) => setFilename(e.target.value)}
+          className="filename-input"
+        />
+        <button className="save-button" onClick={() => saveHandler()}>
+          Save
+        </button>
+        <div className="message">{message}</div>
       </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <div className="row">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            greet();
-          }}
-        >
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="submit">Greet</button>
-        </form>
-      </div>
-      <p>{greetMsg}</p>
     </div>
   );
 }
+
+const countChars = (text: string) => text.replace(/\r?\n/g, "").length;
 
 export default App;
